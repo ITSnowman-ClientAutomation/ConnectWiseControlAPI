@@ -5,7 +5,8 @@ function Connect-CWC {
         [string]$Server,
         [Parameter(Mandatory = $True)]
         [pscredential]$Credentials,
-        [switch]$Force
+        [switch]$Force,
+        [switch]$UseTwoFactor
     )
 
     if ($script:CWCServerConnection -and !$Force) {
@@ -30,6 +31,8 @@ function Connect-CWC {
     $script:CWCServerConnection = @{
         Server = $Server
         Headers = $Headers
+        UseTwoFactor = $UseTwoFactor.IsPresent
+        Session = $null
     }
     Write-Verbose ($script:CWCServerConnection | Out-String)
 

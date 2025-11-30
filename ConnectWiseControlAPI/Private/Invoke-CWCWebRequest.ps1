@@ -19,6 +19,20 @@
     $Arguments.remove('Endpoint')
     $Arguments.Headers = $script:CWCServerConnection.Headers
     $Arguments.UseBasicParsing = $true
+
+    # If two-factor auth is enabled, use the saved WebSession for requests.
+    if ($script:CWCServerConnection.UseTwoFactor) {
+        if ($script:CWCServerConnection.Session -eq $null) {
+            # Set up session, prompt for MFA, and add X-One-Time-Password header for first request
+            $script:CWCServerConnection.Session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+
+            $OneTimePassword = Read-Host -Prompt 'Enter MFA code (One-Time-Password)'
+            $Arguments.Headers['X-One-Time-Password'] = $OneTimePassword
+        }
+
+        $Arguments.WebSession = $script:CWCServerConnection.Session
+    }
+
     Write-Debug "Arguments: $($Arguments | ConvertTo-Json)"
 
     # Issue request
