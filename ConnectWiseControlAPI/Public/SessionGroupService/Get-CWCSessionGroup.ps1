@@ -1,13 +1,14 @@
 function Get-CWCSessionGroup {
-  [CmdletBinding()]
-  param ()
+    [CmdletBinding()]
+    param ()
 
-  $Endpoint = 'Services/SessionGroupService.ashx/session-groups'
+    $Endpoint = 'Services/SessionGroupService.ashx/session-groups'
 
-  $WebRequestArguments = @{
-    Endpoint = $Endpoint
-    Method = 'Get'
-  }
+    $WebRequestArguments = @{
+        Endpoint = $Endpoint
+        Method = 'Get'
+    }
 
-  Invoke-CWCWebRequest -Arguments $WebRequestArguments
+    Invoke-CWCWebRequest -Arguments $WebRequestArguments
+    | Add-PSType -TypeName 'CWC.SessionGroup' -DefaultDisplayPropertySet Name, SessionType, SessionFilter, SubgroupExpressions, CreationDate
 }

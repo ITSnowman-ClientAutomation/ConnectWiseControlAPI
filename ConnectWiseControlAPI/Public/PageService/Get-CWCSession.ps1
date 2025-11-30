@@ -1,11 +1,12 @@
 function Get-CWCSession {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $True)]
         [ValidateSet('Support', 'Access', 'Meeting')]
-        $Type,
+        $Type = 'Access',
         [string]$Group = 'All Machines',
+        [Alias('Filter')]
         [string]$Search,
+        [string]$Name,
         [string]$FindSessionID,
         [int]$Limit
     )
@@ -17,6 +18,10 @@ function Get-CWCSession {
         'Meeting' { $Number = 1 }
         'Access' { $Number = 2 }
         default { return Write-Error "Unknown Type, $Type" }
+    }
+
+    if( -not [string]::IsNullOrWhiteSpace($Name) -and [string]::IsNullOrWhiteSpace($Search) ) {
+        $Search = $Name
     }
 
     $Body = ConvertTo-Json @(
@@ -41,5 +46,14 @@ function Get-CWCSession {
     }
 
     $Data = Invoke-CWCWebRequest -Arguments $WebRequestArguments
-    $Data.ResponseInfoMap.HostSessionInfo.Sessions
+    $Sessions = $Data.ResponseInfoMap.HostSessionInfo.Sessions
+
+    if( -not [string]::IsNullOrWhiteSpace($Name) ){
+        $Sessions = $Sessions | Where-Object { $_.Name -eq $Name }
+    }
+
+    $Sessions
+    | Add-Member -Name 'ConnectedOperators' -MemberType ScriptProperty -Value { ($this.ActiveConnections | Measure-Object).Count } -PassThru
+    | Add-PSType -TypeName 'CWC.Session' -DefaultDisplayPropertySet Name, GuestLoggedOnUserName, GuestOperatingSystemName, ConnectedOperators
+
 }
