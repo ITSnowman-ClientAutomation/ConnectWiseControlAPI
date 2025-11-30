@@ -1,4 +1,4 @@
-function Get-CWCLauncURL {
+function Get-CWCLaunchURL {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory = $True)]
